@@ -32,6 +32,11 @@
 
 }
 
+-(void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g{
+    [super setObject:obj forKey:key cost:g];
+    NSLog( @"setObject cost = %@", @(g) );
+}
+
 @end
 
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
