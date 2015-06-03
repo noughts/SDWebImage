@@ -13,6 +13,7 @@
 
 // See https://github.com/rs/SDWebImage/pull/1141 for discussion
 @interface AutoPurgeCache : NSCache
+@property (assign, nonatomic) NSUInteger maxObjectMemoryCost;
 @end
 
 @implementation AutoPurgeCache
@@ -33,8 +34,10 @@
 }
 
 -(void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g{
+    if( g > _maxObjectMemoryCost ){
+        return;
+    }
     [super setObject:obj forKey:key cost:g];
-    NSLog( @"setObject cost = %@", @(g) );
 }
 
 @end
@@ -63,7 +66,7 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 @interface SDImageCache ()
 
-@property (strong, nonatomic) NSCache *memCache;
+@property (strong, nonatomic) AutoPurgeCache *memCache;
 @property (strong, nonatomic) NSString *diskCachePath;
 @property (strong, nonatomic) NSMutableArray *customPaths;
 @property (SDDispatchQueueSetterSementics, nonatomic) dispatch_queue_t ioQueue;
@@ -411,6 +414,10 @@ FOUNDATION_STATIC_INLINE NSUInteger SDCacheCostForImage(UIImage *image) {
 
 - (void)setMaxMemoryCountLimit:(NSUInteger)maxCountLimit {
     self.memCache.countLimit = maxCountLimit;
+}
+
+- (void)setMaxObjectMemoryCost:(NSUInteger)maxObjectMemoryCost{
+    self.memCache.maxObjectMemoryCost = maxObjectMemoryCost;
 }
 
 - (void)clearMemory {
